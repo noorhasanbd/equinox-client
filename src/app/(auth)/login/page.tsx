@@ -2,20 +2,60 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Button, Checkbox } from "@heroui/react";
+import { useRouter } from "next/navigation";
+import { Button, Checkbox, Spinner } from "@heroui/react";
 import { motion } from "framer-motion";
 import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa6";
 import { HiOutlineBuildingOffice } from "react-icons/hi2";
+import { authClient } from "@/lib/auth-client"; // Importing your Better Auth Client
 
 export default function LoginPage() {
+  const router = useRouter();
   const [isVisible, setIsVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
+  
+  // Dynamic handling states
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
-  const handleCredentialsLogin = (e: React.FormEvent) => {
+  // Email/Password Login implementation
+  const handleCredentialsLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    await authClient.signIn.email({
+      email: email,
+      password: password,
+      dontRememberSession: !rememberMe, // Invert checkbox value for Better Auth schema
+      fetchOptions: {
+        onRequest: () => {
+          setIsLoading(true);
+        },
+        onSuccess: () => {
+          setIsLoading(false);
+          router.push("/dashboard");
+          router.refresh();
+        },
+        onError: (ctx) => {
+          setIsLoading(false);
+          setErrorMessage(ctx.error.message || "Invalid email or password coordination rules.");
+        }
+      }
+    });
+  };
+
+  // Google OAuth Login implementation
+  const handleGoogleLogin = async () => {
+    setErrorMessage(null);
+    await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/dashboard" // Direct routing destination after handshakes
+    });
   };
 
   return (
@@ -38,7 +78,6 @@ export default function LoginPage() {
       </div>
 
       {/* CENTRALIZED AUTH CARD FRAME */}
-      {/* Note: We removed the universal backdrop-blur-2xl from the parent container to isolate the image from it */}
       <motion.div 
         initial={{ opacity: 0, scale: 0.97, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -47,7 +86,6 @@ export default function LoginPage() {
       >
         
         {/* LEFT COLUMN: CURATED SPACE IMAGE LAYOUT */}
-        {/* Fix: Added 'bg-neutral-900 dark:bg-neutral-950' to give it a solid base layer blocking the video backdrop */}
         <section className="hidden md:block md:col-span-5 lg:col-span-6 relative overflow-hidden bg-neutral-900 dark:bg-neutral-950">
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-neutral-950/10 to-transparent z-10" />
           <img
@@ -72,7 +110,6 @@ export default function LoginPage() {
         </section>
 
         {/* RIGHT COLUMN: REFINED CREDENTIAL INPUT LAYOUT */}
-        {/* Fix: Moved 'bg-white/75 dark:bg-neutral-900/65 backdrop-blur-2xl' directly to this panel so only the form portion reveals the video */}
         <section className="col-span-1 md:col-span-7 lg:col-span-6 flex flex-col justify-center p-8 sm:p-12 lg:p-16 bg-white/75 dark:bg-neutral-900/85 backdrop-blur-2xl">
           <div className="w-full space-y-7">
             
@@ -90,10 +127,18 @@ export default function LoginPage() {
               </p>
             </div>
 
+            {/* Error Message Layout Display */}
+            {errorMessage && (
+              <div className="p-3 text-xs font-semibold rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400">
+                {errorMessage}
+              </div>
+            )}
+
             {/* Provider Integrations */}
             <Button
               variant="bordered"
               radius="xl"
+              onClick={handleGoogleLogin}
               startContent={<FaGoogle className="text-xs text-neutral-600 dark:text-neutral-400" />}
               className="w-full h-11 border-neutral-200/80 dark:border-neutral-800/80 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-sm font-bold text-xs hover:bg-white/80 dark:hover:bg-neutral-900/80 active:scale-98 transition-all"
             >
@@ -119,7 +164,8 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full h-10 px-4 text-xs rounded-xl border border-neutral-200 bg-white/70 dark:bg-neutral-950/60 focus:bg-white/90 dark:focus:bg-neutral-950 hover:border-neutral-300 focus:border-indigo-600 focus:outline-none dark:border-neutral-800 dark:hover:border-neutral-700 dark:focus:border-indigo-400 transition-all placeholder:text-neutral-400 text-neutral-900 dark:text-neutral-50"
+                  disabled={isLoading}
+                  className="w-full h-10 px-4 text-xs rounded-xl border border-neutral-200 bg-white/70 dark:bg-neutral-950/60 focus:bg-white/90 dark:focus:bg-neutral-950 hover:border-neutral-300 focus:border-indigo-600 focus:outline-none dark:border-neutral-800 dark:hover:border-neutral-700 dark:focus:border-indigo-400 transition-all placeholder:text-neutral-400 text-neutral-900 dark:text-neutral-50 disabled:opacity-50"
                 />
               </div>
 
@@ -142,7 +188,8 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-full h-10 pl-4 pr-10 text-xs rounded-xl border border-neutral-200 bg-white/70 dark:bg-neutral-950/60 focus:bg-white/90 dark:focus:bg-neutral-950 hover:border-neutral-300 focus:border-indigo-600 focus:outline-none dark:border-neutral-800 dark:hover:border-neutral-700 dark:focus:border-indigo-400 transition-all placeholder:text-neutral-400 text-neutral-900 dark:text-neutral-50"
+                    disabled={isLoading}
+                    className="w-full h-10 pl-4 pr-10 text-xs rounded-xl border border-neutral-200 bg-white/70 dark:bg-neutral-950/60 focus:bg-white/90 dark:focus:bg-neutral-950 hover:border-neutral-300 focus:border-indigo-600 focus:outline-none dark:border-neutral-800 dark:hover:border-neutral-700 dark:focus:border-indigo-400 transition-all placeholder:text-neutral-400 text-neutral-900 dark:text-neutral-50 disabled:opacity-50"
                   />
                   <button 
                     type="button" 
@@ -159,6 +206,8 @@ export default function LoginPage() {
               <div className="flex items-center justify-between pt-1">
                 <Checkbox 
                   radius="sm" 
+                  isSelected={rememberMe}
+                  onValueChange={setRememberMe}
                   classNames={{
                     label: "text-[11px] font-medium text-neutral-600 dark:text-neutral-300 select-none"
                   }}
@@ -172,9 +221,10 @@ export default function LoginPage() {
                 type="submit"
                 color="primary"
                 radius="xl"
-                className="w-full h-11 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs tracking-wide transition-all shadow-md shadow-indigo-600/10 active:scale-98 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+                disabled={isLoading}
+                className="w-full h-11 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs tracking-wide transition-all shadow-md shadow-indigo-600/10 active:scale-98 dark:bg-indigo-500 dark:hover:bg-indigo-400 disabled:opacity-70"
               >
-                Sign In to Account
+                {isLoading ? <Spinner size="sm" color="white" /> : "Sign In to Account"}
               </Button>
             </form>
 

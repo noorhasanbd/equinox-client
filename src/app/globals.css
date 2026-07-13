@@ -1,2 +1,26 @@
 @import "tailwindcss";
 @import "@heroui/styles";
+
+@theme {
+  /* This binds light/dark changes directly to Tailwind v4 theme engines */
+  --color-background-base: lightmix(white, black);
+}
+
+/* ─── LIGHT MODE PROFILE ─── */
+:root {
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+}
+
+/* ─── DARK MODE PROFILE (Triggers when .dark class is on <html>) ─── */
+.dark {
+  --background: #09090b;
+  --foreground: #f4f4f5;
+}
+
+/* Apply these global system variables to your actual webpage layout */
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}

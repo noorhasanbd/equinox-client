@@ -2,15 +2,22 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaGoogle, FaEye, FaEyeSlash, FaArrowRight, FaArrowLeft, FaCheck } from "react-icons/fa6";
 import { HiOutlineBuildingOffice, HiOutlineUserCircle, HiOutlineBriefcase } from "react-icons/hi2";
+import { authClient } from "@/lib/auth-client"; // Ensure this matches your file path
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [isVisible, setIsVisible] = useState(false);
   
+  // Interaction Pipeline States
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   // Form State
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -27,11 +34,12 @@ export default function RegisterPage() {
     if (!file) return;
 
     setIsUploading(true);
+    setErrorMessage(null);
     const formData = new FormData();
     formData.append("image", file);
 
     try {
-      // Replace with your actual ImgBB API key configuration variables
+      // Best Practice: Replace with process.env.NEXT_PUBLIC_IMGBB_API_KEY in production
       const IMGBB_API_KEY = "YOUR_IMGBB_API_KEY"; 
       const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
         method: "POST",
@@ -40,21 +48,66 @@ export default function RegisterPage() {
       const data = await response.json();
       if (data.success) {
         setImageUrl(data.data.url);
+      } else {
+        setErrorMessage("Image upload failed. Please try a different photo.");
       }
     } catch (error) {
       console.error("Image upload configuration failure:", error);
+      setErrorMessage("Could not connect to image server.");
     } finally {
       setIsUploading(false);
     }
   };
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  // Google OAuth Social Authentication Execution
+  const handleGoogleSignUp = async () => {
+    setErrorMessage(null);
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/dashboard", // Target route after successful landing authorization
+      });
+    } catch (err: any) {
+      setErrorMessage(err.message || "An unexpected error occurred during Google Sign Up.");
+    }
+  };
+
+  // Standard Credentials Pipeline Handler
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
+
     if (step === 1) {
       setStep(2);
       return;
     }
-    // Execution pipeline logic for system entry registration goes here
+
+    setIsSubmitting(true);
+
+    try {
+      const { data, error } = await authClient.signUp.email({
+        email: email,
+        password: password,
+        name: username,
+        image: imageUrl || undefined,
+        // Better Auth saves extra payload fields natively inside the dynamic 'data' object attributes mapping.
+        // Ensure you configure 'role' on your DB adapter if strict schema protection maps it explicitly.
+        data: {
+          role: role,
+        },
+      });
+
+      if (error) {
+        setErrorMessage(error.message || "Registration failed. Please check your credentials.");
+      } else {
+        // Registration success -> Push to your authenticated application landing space
+        router.push("/dashboard");
+      }
+    } catch (err: any) {
+      setErrorMessage("Unable to process request at this time.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -120,6 +173,13 @@ export default function RegisterPage() {
               </p>
             </div>
 
+            {/* ERROR HUD ELEMENT */}
+            {errorMessage && (
+              <div className="p-3 text-xs font-semibold text-red-600 bg-red-50 dark:bg-red-950/30 dark:text-red-400 rounded-xl border border-red-200/60 dark:border-red-900/40">
+                {errorMessage}
+              </div>
+            )}
+
             <form onSubmit={handleRegisterSubmit} className="space-y-4">
               <AnimatePresence mode="wait">
                 {step === 1 ? (
@@ -133,8 +193,10 @@ export default function RegisterPage() {
                   >
                     {/* Google OAuth Option */}
                     <Button
+                      type="button"
                       variant="bordered"
                       radius="xl"
+                      onClick={handleGoogleSignUp}
                       startContent={<FaGoogle className="text-xs text-neutral-600 dark:text-neutral-400" />}
                       className="w-full h-11 border-neutral-200 dark:border-neutral-800 bg-white/40 dark:bg-neutral-900/40 font-bold text-xs active:scale-98 transition-all"
                     >
@@ -194,7 +256,7 @@ export default function RegisterPage() {
                     <Button
                       type="submit"
                       radius="xl"
-                      className="w-full h-11 mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs tracking-wide endContent={<FaArrowRight className='text-[10px]' />}"
+                      className="w-full h-11 mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs tracking-wide transition-all"
                       endContent={<FaArrowRight className="text-[10px]" />}
                     >
                       Continue to Profile
@@ -253,10 +315,11 @@ export default function RegisterPage() {
                             onChange={handleImageUpload}
                             className="hidden" 
                             id="file-upload" 
+                            disabled={isUploading || isSubmitting}
                           />
                           <label 
                             htmlFor="file-upload" 
-                            className="inline-flex w-full h-10 items-center justify-center px-4 rounded-xl border border-dashed border-neutral-300 dark:border-neutral-700 text-xs font-semibold cursor-pointer text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-950 transition-colors"
+                            className={`inline-flex w-full h-10 items-center justify-center px-4 rounded-xl border border-dashed border-neutral-300 dark:border-neutral-700 text-xs font-semibold cursor-pointer text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-950 transition-colors ${isUploading ? "opacity-50 pointer-events-none" : ""}`}
                           >
                             {isUploading ? "Uploading to ImgBB..." : "Upload Profile Photo"}
                           </label>
@@ -272,7 +335,8 @@ export default function RegisterPage() {
                         placeholder="https://example.com/photo.jpg"
                         value={imageUrl}
                         onChange={(e) => setImageUrl(e.target.value)}
-                        className="w-full h-10 px-4 text-xs rounded-xl border border-neutral-200 bg-white/70 dark:bg-neutral-950/60 focus:outline-none focus:border-indigo-600 dark:border-neutral-800 dark:focus:border-indigo-400 text-neutral-900 dark:text-neutral-50"
+                        disabled={isSubmitting}
+                        className="w-full h-10 px-4 text-xs rounded-xl border border-neutral-200 bg-white/70 dark:bg-neutral-950/60 focus:outline-none focus:border-indigo-600 dark:border-neutral-800 dark:focus:border-indigo-400 text-neutral-900 dark:text-neutral-50 disabled:opacity-50"
                       />
                     </div>
 
@@ -283,7 +347,8 @@ export default function RegisterPage() {
                         variant="bordered"
                         radius="xl"
                         onClick={() => setStep(1)}
-                        className="h-11 border-neutral-200 dark:border-neutral-800 text-xs font-bold"
+                        disabled={isSubmitting}
+                        className="h-11 border-neutral-200 dark:border-neutral-800 text-xs font-bold disabled:opacity-50"
                         startContent={<FaArrowLeft className="text-[10px]" />}
                       >
                         Back
@@ -291,9 +356,11 @@ export default function RegisterPage() {
                       <Button
                         type="submit"
                         radius="xl"
-                        className="flex-grow h-11 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs tracking-wide shadow-md"
+                        isLoading={isSubmitting}
+                        disabled={isUploading}
+                        className="flex-grow h-11 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs tracking-wide shadow-md disabled:opacity-50"
                       >
-                        Complete Registration
+                        {isSubmitting ? "Creating Account..." : "Complete Registration"}
                       </Button>
                     </div>
                   </motion.div>
