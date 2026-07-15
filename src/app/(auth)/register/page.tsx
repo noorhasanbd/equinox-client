@@ -28,6 +28,13 @@ export default function RegisterPage() {
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
+  // ✅ Reusable helper to calculate dynamic routing paths based on user roles
+  const getRoleBasedRoute = (userRole: string) => {
+    if (userRole === "admin") return "/dashboard/admin";
+    if (userRole === "owner") return "/dashboard/owner";
+    return "/dashboard/guest"; // Default fallback
+  };
+
   // Client-Side ImageBB Upload Implementation Handler
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -39,7 +46,6 @@ export default function RegisterPage() {
     formData.append("image", file);
 
     try {
-      // Best Practice: Replace with process.env.NEXT_PUBLIC_IMGBB_API_KEY in production
       const IMGBB_API_KEY = "YOUR_IMGBB_API_KEY"; 
       const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
         method: "POST",
@@ -65,7 +71,9 @@ export default function RegisterPage() {
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/dashboard", // Target route after successful landing authorization
+        // ✅ Redirect to a central route dispatcher or handle with server middleware. 
+        // If your middleware auto-routes /dashboard based on session, keeping it simple works perfectly:
+        callbackURL: "/dashboard", 
       });
     } catch (err: any) {
       setErrorMessage(err.message || "An unexpected error occurred during Google Sign Up.");
@@ -90,8 +98,6 @@ export default function RegisterPage() {
         password: password,
         name: username,
         image: imageUrl || undefined,
-        // Better Auth saves extra payload fields natively inside the dynamic 'data' object attributes mapping.
-        // Ensure you configure 'role' on your DB adapter if strict schema protection maps it explicitly.
         data: {
           role: role,
         },
@@ -99,9 +105,10 @@ export default function RegisterPage() {
 
       if (error) {
         setErrorMessage(error.message || "Registration failed. Please check your credentials.");
-      } else {
-        // Registration success -> Push to your authenticated application landing space
-        router.push("/dashboard");
+      } else if (data) {
+        // ✅ Dynamically redirect based on registered user role configuration
+        const targetRoute = getRoleBasedRoute(role);
+        router.push(targetRoute);
       }
     } catch (err: any) {
       setErrorMessage("Unable to process request at this time.");

@@ -54,7 +54,7 @@ export default function Navbar() {
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
-          router.push("/auth/signin"); // Adjust to your preferred sign-in route
+          router.push("/login"); // Adjust to your preferred sign-in route
           router.refresh();
         },
       },
@@ -67,10 +67,21 @@ export default function Navbar() {
     { label: "About", href: "/about" },
   ];
 
-  const dashboardHref =
-    userRole === "admin"
-      ? "/dashboard/admin/overview"
-      : "/dashboard/user/overview";
+  let dashboardHref: string;
+
+switch (userRole) {
+  case "admin":
+    dashboardHref = "/dashboard/admin";
+    break;
+  case "owner":
+    dashboardHref = "/dashboard/owner";
+    break;
+  case "guest":
+    dashboardHref = "/dashboard/guest";
+    break;
+  default:
+    dashboardHref = "/dashboard/guest"; // Safe fallback route
+}
 
   const profileHref = "/dashboard/my-profile";
 

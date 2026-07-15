@@ -2,25 +2,39 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Checkbox, Spinner } from "@heroui/react";
 import { motion } from "framer-motion";
 import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa6";
 import { HiOutlineBuildingOffice } from "react-icons/hi2";
-import { authClient } from "@/lib/auth-client"; // Importing your Better Auth Client
+import { authClient } from "@/lib/auth-client"; 
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // 🧠 Hook into Better-Auth's client-side session status
+  const { data: session } = authClient.useSession();
+  
   const [isVisible, setIsVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
   
-  // Dynamic handling states
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
+
+  // 🛠️ Helper utility to calculate the target route based on user roles dynamically
+  const getRedirectDestination = (userRole?: string | null) => {
+    const callbackUrl = searchParams.get("callbackUrl");
+    if (callbackUrl) return callbackUrl;
+
+    if (userRole === "admin") return "/dashboard/admin";
+    if (userRole === "owner") return "/dashboard/owner";
+    return "/dashboard/guest"; // Safe fallback baseline
+  };
 
   // Email/Password Login implementation
   const handleCredentialsLogin = async (e: React.FormEvent) => {
@@ -31,14 +45,19 @@ export default function LoginPage() {
     await authClient.signIn.email({
       email: email,
       password: password,
-      dontRememberSession: !rememberMe, // Invert checkbox value for Better Auth schema
+      dontRememberSession: !rememberMe, 
       fetchOptions: {
         onRequest: () => {
           setIsLoading(true);
         },
-        onSuccess: () => {
+        onSuccess: (ctx) => {
           setIsLoading(false);
-          router.push("/dashboard");
+          
+          // 🧠 Extract the freshly logged-in user's role from context contextually
+          const userRole = ctx.data?.user?.role;
+          const destination = getRedirectDestination(userRole);
+          
+          router.push(destination);
           router.refresh();
         },
         onError: (ctx) => {
@@ -52,16 +71,21 @@ export default function LoginPage() {
   // Google OAuth Login implementation
   const handleGoogleLogin = async () => {
     setErrorMessage(null);
+    
+    // For OAuth, pass a static fallback route; your server callback code 
+    // can intercept the landing role mapping safely later.
+    const baselineDestination = getRedirectDestination(session?.user?.role);
+
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/dashboard" // Direct routing destination after handshakes
+      callbackURL: baselineDestination
     });
   };
 
   return (
     <main className="relative w-full min-h-screen flex items-center justify-center px-4 sm:px-6 py-12 selection:bg-indigo-600/10 selection:text-indigo-600 overflow-hidden bg-neutral-950">
       
-      {/* NATIVE HIGH-PERFORMANCE VIDEO BACKGROUND ENGINE */}
+      {/* VIDEO BACKGROUND */}
       <div className="absolute inset-0 w-full h-full overflow-hidden select-none pointer-events-none z-0">
         <video
           autoPlay
@@ -72,8 +96,6 @@ export default function LoginPage() {
         >
           <source src="/videos/oceanvideo.mp4" type="video/mp4" />
         </video>
-
-        {/* Cinematic atmospheric layer protection overlay */}
         <div className="absolute inset-0 bg-neutral-950/40 dark:bg-neutral-950/60 z-10" />
       </div>
 
@@ -93,8 +115,6 @@ export default function LoginPage() {
             alt="Boutique premium interior design alignment"
             className="w-full h-full object-cover select-none pointer-events-none relative z-0"
           />
-          
-          {/* Absolute Brand Overlay */}
           <div className="absolute inset-0 p-10 z-20 flex flex-col justify-between items-start">
             <Link href="/" className="inline-flex items-center gap-2 text-white font-extrabold tracking-tight text-lg group">
               <HiOutlineBuildingOffice className="h-5 w-5 text-indigo-400 group-hover:scale-105 transition-transform" />
@@ -109,11 +129,10 @@ export default function LoginPage() {
           </div>
         </section>
 
-        {/* RIGHT COLUMN: REFINED CREDENTIAL INPUT LAYOUT */}
+        {/* RIGHT COLUMN: CREDENTIAL INPUT LAYOUT */}
         <section className="col-span-1 md:col-span-7 lg:col-span-6 flex flex-col justify-center p-8 sm:p-12 lg:p-16 bg-white/75 dark:bg-neutral-900/85 backdrop-blur-2xl">
           <div className="w-full space-y-7">
             
-            {/* Form Top Matrix Headers */}
             <div>
               <Link href="/" className="md:hidden inline-flex items-center gap-2 mb-4 text-neutral-900 dark:text-neutral-100 font-extrabold tracking-tight text-base">
                 <HiOutlineBuildingOffice className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
@@ -127,14 +146,12 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {/* Error Message Layout Display */}
             {errorMessage && (
               <div className="p-3 text-xs font-semibold rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400">
                 {errorMessage}
               </div>
             )}
 
-            {/* Provider Integrations */}
             <Button
               variant="bordered"
               radius="xl"
@@ -145,14 +162,12 @@ export default function LoginPage() {
               Sign in with Google
             </Button>
 
-            {/* Structural Divider */}
             <div className="relative flex py-1 items-center text-[10px] text-neutral-400 dark:text-neutral-600 uppercase tracking-widest font-bold">
               <div className="flex-grow border-t border-neutral-200/50 dark:border-neutral-800/40"></div>
               <span className="flex-shrink mx-3">or credentials</span>
               <div className="flex-grow border-t border-neutral-200/50 dark:border-neutral-800/40"></div>
             </div>
 
-            {/* Inputs & Actions Form Wrapper */}
             <form onSubmit={handleCredentialsLogin} className="space-y-4">
               <div className="space-y-1">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
@@ -202,7 +217,6 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Hardware persistence checkpoint layout */}
               <div className="flex items-center justify-between pt-1">
                 <Checkbox 
                   radius="sm" 
@@ -216,7 +230,6 @@ export default function LoginPage() {
                 </Checkbox>
               </div>
 
-              {/* Form Submission Execution Callout */}
               <Button
                 type="submit"
                 color="primary"
@@ -228,7 +241,6 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            {/* Platform onboarding routing setup */}
             <p className="text-center text-xs text-neutral-500 dark:text-neutral-400 font-medium">
               New to Equinox?{" "}
               <Link 
