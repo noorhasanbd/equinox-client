@@ -45,7 +45,7 @@ export default function LoginPage() {
     await authClient.signIn.email({
       email: email,
       password: password,
-      dontRememberSession: !rememberMe, 
+      rememberMe: rememberMe, // Pass the boolean state directly (or just shorthand: rememberMe)
       fetchOptions: {
         onRequest: () => {
           setIsLoading(true);
