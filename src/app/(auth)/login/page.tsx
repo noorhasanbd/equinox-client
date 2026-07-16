@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button, Checkbox, Spinner } from "@heroui/react";
+import { Button, Checkbox, Label, Spinner } from "@heroui/react";
 import { motion } from "framer-motion";
 import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa6";
 import { HiOutlineBuildingOffice } from "react-icons/hi2";
@@ -54,7 +54,7 @@ export default function LoginPage() {
           setIsLoading(false);
           
           // 🧠 Extract the freshly logged-in user's role from context contextually
-          const userRole = (ctx.data?.user as { role?: string } | undefined)?.role;
+          const userRole = ctx.data?.user?.role;
           const destination = getRedirectDestination(userRole);
           
           router.push(destination);
@@ -74,11 +74,8 @@ export default function LoginPage() {
     
     // For OAuth, pass a static fallback route; your server callback code 
     // can intercept the landing role mapping safely later.
-    // `role` is a custom field on the user model that the authClient's
-    // TypeScript types don't know about yet (see note below on inferAdditionalFields) —
-    // this cast unblocks the build without giving up runtime correctness.
-    const userRole = (session?.user as { role?: string } | undefined)?.role;
-    const baselineDestination = getRedirectDestination(userRole);
+    // `role` is now properly typed via the inferAdditionalFields client plugin.
+    const baselineDestination = getRedirectDestination(session?.user?.role);
 
     await authClient.signIn.social({
       provider: "google",
@@ -157,12 +154,11 @@ export default function LoginPage() {
             )}
 
             <Button
-              variant="bordered"
-              radius="xl"
-              onClick={handleGoogleLogin}
-              startContent={<FaGoogle className="text-xs text-neutral-600 dark:text-neutral-400" />}
-              className="w-full h-11 border-neutral-200/80 dark:border-neutral-800/80 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-sm font-bold text-xs hover:bg-white/80 dark:hover:bg-neutral-900/80 active:scale-98 transition-all"
+              variant="outline"
+              onPress={handleGoogleLogin}
+              className="w-full h-11 rounded-xl border-neutral-200/80 dark:border-neutral-800/80 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-sm font-bold text-xs hover:bg-white/80 dark:hover:bg-neutral-900/80 active:scale-98 transition-all flex items-center justify-center gap-2"
             >
+              <FaGoogle className="text-xs text-neutral-600 dark:text-neutral-400" />
               Sign in with Google
             </Button>
 
@@ -222,26 +218,29 @@ export default function LoginPage() {
               </div>
 
               <div className="flex items-center justify-between pt-1">
-                <Checkbox 
-                  radius="sm" 
+                <Checkbox
                   isSelected={rememberMe}
-                  onValueChange={setRememberMe}
-                  classNames={{
-                    label: "text-[11px] font-medium text-neutral-600 dark:text-neutral-300 select-none"
-                  }}
+                  onChange={setRememberMe}
                 >
-                  Remember this hardware session
+                  <Checkbox.Control>
+                    <Checkbox.Indicator />
+                  </Checkbox.Control>
+                  <Checkbox.Content>
+                    <Label className="text-[11px] font-medium text-neutral-600 dark:text-neutral-300 select-none">
+                      Remember this hardware session
+                    </Label>
+                  </Checkbox.Content>
                 </Checkbox>
               </div>
 
               <Button
                 type="submit"
-                color="primary"
-                radius="xl"
-                disabled={isLoading}
-                className="w-full h-11 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs tracking-wide transition-all shadow-md shadow-indigo-600/10 active:scale-98 dark:bg-indigo-500 dark:hover:bg-indigo-400 disabled:opacity-70"
+                variant="primary"
+                isDisabled={isLoading}
+                isPending={isLoading}
+                className="w-full h-11 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs tracking-wide transition-all shadow-md shadow-indigo-600/10 active:scale-98 dark:bg-indigo-500 dark:hover:bg-indigo-400 disabled:opacity-70"
               >
-                {isLoading ? <Spinner size="sm" color="white" /> : "Sign In to Account"}
+                {({ isPending }) => (isPending ? <Spinner size="sm" color="current" /> : "Sign In to Account")}
               </Button>
             </form>
 
