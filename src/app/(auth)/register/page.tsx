@@ -93,14 +93,15 @@ export default function RegisterPage() {
     setIsSubmitting(true);
 
     try {
+      // `role` is a registered additional field (via inferAdditionalFields on the
+      // client), so better-auth expects it as a top-level property here — not
+      // nested under a `data` object, which isn't part of this call's shape.
       const { data, error } = await authClient.signUp.email({
         email: email,
         password: password,
         name: username,
         image: imageUrl || undefined,
-        data: {
-          role: role,
-        },
+        role: role,
       });
 
       if (error) {
@@ -201,12 +202,11 @@ export default function RegisterPage() {
                     {/* Google OAuth Option */}
                     <Button
                       type="button"
-                      variant="bordered"
-                      radius="xl"
-                      onClick={handleGoogleSignUp}
-                      startContent={<FaGoogle className="text-xs text-neutral-600 dark:text-neutral-400" />}
-                      className="w-full h-11 border-neutral-200 dark:border-neutral-800 bg-white/40 dark:bg-neutral-900/40 font-bold text-xs active:scale-98 transition-all"
+                      variant="outline"
+                      onPress={handleGoogleSignUp}
+                      className="w-full h-11 rounded-xl border-neutral-200 dark:border-neutral-800 bg-white/40 dark:bg-neutral-900/40 font-bold text-xs active:scale-98 transition-all flex items-center justify-center gap-2"
                     >
+                      <FaGoogle className="text-xs text-neutral-600 dark:text-neutral-400" />
                       Sign up with Google
                     </Button>
 
@@ -262,11 +262,11 @@ export default function RegisterPage() {
 
                     <Button
                       type="submit"
-                      radius="xl"
-                      className="w-full h-11 mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs tracking-wide transition-all"
-                      endContent={<FaArrowRight className="text-[10px]" />}
+                      variant="primary"
+                      className="w-full h-11 mt-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs tracking-wide transition-all flex items-center justify-center gap-2"
                     >
                       Continue to Profile
+                      <FaArrowRight className="text-[10px]" />
                     </Button>
                   </motion.div>
                 ) : (
@@ -351,21 +351,20 @@ export default function RegisterPage() {
                     <div className="flex gap-3 pt-2">
                       <Button
                         type="button"
-                        variant="bordered"
-                        radius="xl"
-                        onClick={() => setStep(1)}
-                        disabled={isSubmitting}
-                        className="h-11 border-neutral-200 dark:border-neutral-800 text-xs font-bold disabled:opacity-50"
-                        startContent={<FaArrowLeft className="text-[10px]" />}
+                        variant="outline"
+                        onPress={() => setStep(1)}
+                        isDisabled={isSubmitting}
+                        className="h-11 rounded-xl border-neutral-200 dark:border-neutral-800 text-xs font-bold disabled:opacity-50 flex items-center justify-center gap-2"
                       >
+                        <FaArrowLeft className="text-[10px]" />
                         Back
                       </Button>
                       <Button
                         type="submit"
-                        radius="xl"
-                        isLoading={isSubmitting}
-                        disabled={isUploading}
-                        className="flex-grow h-11 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs tracking-wide shadow-md disabled:opacity-50"
+                        variant="primary"
+                        isPending={isSubmitting}
+                        isDisabled={isUploading}
+                        className="flex-grow h-11 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs tracking-wide shadow-md disabled:opacity-50"
                       >
                         {isSubmitting ? "Creating Account..." : "Complete Registration"}
                       </Button>
