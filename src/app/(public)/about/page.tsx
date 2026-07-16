@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { 
  
   FaKey, 
@@ -16,7 +16,7 @@ import {
   HiOutlineUserGroup 
 } from "react-icons/hi2";
 import Link from "next/link";
-import { Button } from "@heroui/react";
+import { buttonVariants } from "@heroui/styles";
 
 // Text configuration matrices to prevent component clutter
 const STATS = [
@@ -66,7 +66,9 @@ const LEADERSHIP = [
 ];
 
 // Motion presets for ultra-smooth layout rendering
-const fadeInVariant = {
+// Typed as `Variants` so the `ease` cubic-bezier array is inferred as the
+// fixed 4-tuple Framer Motion expects, instead of a generic `number[]`.
+const fadeInVariant: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: (i: number) => ({
     opacity: 1,
@@ -266,16 +268,17 @@ export default function AboutPage() {
             <p className="mt-4 text-sm text-neutral-400 leading-relaxed">
               Book your initial spatial exploration setting. Enjoy full automated checking protocols and immediate premium configurations.
             </p>
-            <Button
-              as={Link}
+            {/* v3 Button has no `as` prop — style a real next/link with buttonVariants instead */}
+            <Link
               href="/rooms"
-              color="primary"
-              radius="xl"
-              className="mt-8 h-12 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-6 transition-all group flex items-center gap-2 active:scale-98"
+              className={
+                buttonVariants({ variant: "primary" }) +
+                " mt-8 h-12 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-6 transition-all group flex items-center gap-2 active:scale-98"
+              }
             >
               Browse Premium Stays
               <FaArrowRightLong className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-            </Button>
+            </Link>
           </div>
         </div>
       </section>
