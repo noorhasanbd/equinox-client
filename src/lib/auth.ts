@@ -16,7 +16,7 @@ const client = new MongoClient(uri);
 const db = client.db('equinox-db'); // Replace 'your-database-name' with your actual database name
 
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  baseURL: process.env.BETTER_AUTH_URL,
   database: mongodbAdapter(db, {
     client
   }),
