@@ -292,9 +292,10 @@ export default function OwnerRoomsPage() {
           </p>
         </div>
 
+        {/* 🟢 FIXED: changed 'disabled' to HeroUI compliant 'isDisabled' */}
         <Button
           onPress={openCreateModal}
-          disabled={hotels.length === 0}
+          isDisabled={hotels.length === 0}
           className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs tracking-wide shadow-md shadow-indigo-600/10 h-10 px-4 rounded-xl flex items-center gap-2 transition-all active:scale-98 dark:bg-indigo-500 dark:hover:bg-indigo-400 disabled:opacity-50"
         >
           <Plus className="h-4 w-4 stroke-[2.5]" />
@@ -370,7 +371,7 @@ export default function OwnerRoomsPage() {
       {/* RENDER GRID CONTROLS */}
       {loading ? (
         <div className="flex h-[300px] items-center justify-center">
-          <Spinner label="Assembling room maps..." />
+          <Spinner color='accent' />
         </div>
       ) : rooms.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-8 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-white/50 dark:bg-slate-900/10">

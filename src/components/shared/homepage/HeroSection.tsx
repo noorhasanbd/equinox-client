@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import { ChevronLeft, ChevronRight, Star, MapPin, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -14,8 +14,10 @@ interface SlideItem {
   image: string;
   tagline: string;
 }
+
 // 1. Hyper-Modern Cinematic Transitions
-const fadeScaleVariants = {
+// 🟢 FIXED: Explicitly typed as Variants to correctly evaluate the cubic-bezier easing arrays
+const fadeScaleVariants: Variants = {
   enter: {
     scale: 1.1,
     opacity: 0,
@@ -24,7 +26,7 @@ const fadeScaleVariants = {
     scale: 1,
     opacity: 1,
     transition: {
-      scale: { duration: 1.2, ease: [0.16, 1, 0.3, 1] }, // Custom smooth ease-out curve
+      scale: { duration: 1.2, ease: [0.16, 1, 0.3, 1] }, 
       opacity: { duration: 0.6, ease: "linear" },
     },
   },
@@ -39,7 +41,7 @@ const fadeScaleVariants = {
 };
 
 // 2. Text Content Independent Spring Animations
-const textContentVariants = {
+const textContentVariants: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: { 
     opacity: 1, 
@@ -48,12 +50,12 @@ const textContentVariants = {
       type: "spring",
       stiffness: 100,
       damping: 20,
-      staggerChildren: 0.1, // Staggers text elements automatically
+      staggerChildren: 0.1, 
     },
   },
 };
 
-const childTextVariants = {
+const childTextVariants: Variants = {
   hidden: { opacity: 0, y: 15 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } }
 };

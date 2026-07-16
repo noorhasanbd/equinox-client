@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { Button, Input } from "@heroui/react";
-import { 
-  FaFacebookF, 
-  FaInstagram, 
-  FaLinkedinIn, 
-  FaGithub, 
-  FaXTwitter 
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaLinkedinIn,
+  FaGithub,
+  FaXTwitter,
 } from "react-icons/fa6";
 import { HiOutlineBuildingOffice } from "react-icons/hi2";
 
@@ -53,41 +53,43 @@ export default function Footer() {
   return (
     <footer className="w-full border-t border-neutral-200/60 bg-white dark:border-neutral-800/60 dark:bg-neutral-900 transition-colors duration-300">
       <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8 lg:py-20">
-        
         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-5 xl:gap-8">
-          
           <div className="flex flex-col space-y-5 lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2.5 group" aria-label="Equinox Home">
+            <Link
+              href="/"
+              className="flex items-center gap-2.5 group"
+              aria-label="Equinox Home"
+            >
               <HiOutlineBuildingOffice className="h-6 w-6 text-indigo-600 dark:text-indigo-400 transition-transform duration-300 group-hover:scale-105" />
               <span className="text-xl font-extrabold tracking-tight text-neutral-900 dark:text-neutral-100">
                 Equinox
               </span>
             </Link>
             <p className="max-w-xs text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
-              Find and reserve premium rooms, apartments, and stays effortlessly. Equinox makes booking simple, secure, and reliable.
+              Find and reserve premium rooms, apartments, and stays
+              effortlessly. Equinox makes booking simple, secure, and reliable.
             </p>
             <div className="flex items-center gap-3">
               {SOCIAL_LINKS.map((social) => {
                 const IconComponent = social.icon;
                 return (
-                  <Button
+                  <Link
                     key={social.label}
-                    as={Link}
                     href={social.href}
-                    isIconOnly
-                    variant="light"
-                    radius="full"
                     aria-label={social.label}
-                    className="text-neutral-500 hover:text-indigo-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:text-indigo-400 dark:hover:bg-neutral-800 transition-all"
+                    className="flex items-center justify-center h-10 w-10 rounded-full text-neutral-500 hover:text-indigo-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:text-indigo-400 dark:hover:bg-neutral-800 transition-all"
                   >
                     <IconComponent className="h-4 w-4" />
-                  </Button>
+                  </Link>
                 );
               })}
             </div>
           </div>
 
-          <nav aria-label="Footer Quick Links" className="flex flex-col space-y-4">
+          <nav
+            aria-label="Footer Quick Links"
+            className="flex flex-col space-y-4"
+          >
             <span className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-neutral-100">
               Quick Links
             </span>
@@ -105,7 +107,10 @@ export default function Footer() {
             </ul>
           </nav>
 
-          <nav aria-label="Footer Services Links" className="flex flex-col space-y-4">
+          <nav
+            aria-label="Footer Services Links"
+            className="flex flex-col space-y-4"
+          >
             <span className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-neutral-100">
               Services
             </span>
@@ -123,7 +128,10 @@ export default function Footer() {
             </ul>
           </nav>
 
-          <nav aria-label="Footer Support Links" className="flex flex-col space-y-4">
+          <nav
+            aria-label="Footer Support Links"
+            className="flex flex-col space-y-4"
+          >
             <span className="text-xs font-bold uppercase tracking-widest text-neutral-900 dark:text-neutral-100">
               Support
             </span>
@@ -140,7 +148,6 @@ export default function Footer() {
               ))}
             </ul>
           </nav>
-
         </div>
 
         <div className="mt-12 max-w-md border-t border-neutral-100 pt-8 dark:border-neutral-800/40 lg:mt-16 lg:max-w-none">
@@ -150,23 +157,24 @@ export default function Footer() {
                 Stay Updated
               </span>
               <span className="mt-1 text-xs text-neutral-500 dark:text-neutral-400 block">
-                Get exclusive deals, travel inspiration, and booking offers delivered to your inbox.
+                Get exclusive deals, travel inspiration, and booking offers
+                delivered to your inbox.
               </span>
             </div>
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2.5 lg:col-span-2 w-full max-w-md sm:max-w-none ml-auto">
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col sm:flex-row gap-2.5 lg:col-span-2 w-full max-w-md sm:max-w-none ml-auto"
+            >
               <Input
                 type="email"
                 placeholder="Enter your email"
                 required
                 aria-label="Email address for newsletter"
-                radius="xl"
-                variant="bordered"
+                variant="secondary"
                 className="w-full sm:max-w-xs md:max-w-sm ml-auto text-sm placeholder:text-neutral-400 border-neutral-200 hover:border-neutral-300 focus-within:!border-indigo-600 dark:border-neutral-700 dark:hover:border-neutral-600 dark:focus-within:!border-indigo-400"
               />
               <Button
                 type="submit"
-                color="primary"
-                radius="xl"
                 className="h-11 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm px-6 transition-all shadow-md shadow-indigo-600/10 active:scale-98 dark:bg-indigo-500 dark:hover:bg-indigo-400"
               >
                 Subscribe
@@ -183,7 +191,6 @@ export default function Footer() {
             Crafted with ❤️ using Next.js, HeroUI & TypeScript
           </div>
         </div>
-
       </div>
     </footer>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 
 interface LoaderProps {
   label?: string;
@@ -8,8 +8,8 @@ interface LoaderProps {
 }
 
 export default function Loader({ label = "Loading sanctuary", fullscreen = true }: LoaderProps) {
-  // Animation configuration for the geometric scaling squares
-  const squareVariants = {
+  // Explicitly type the object and typecast the return configuration
+  const squareVariants: Variants = {
     animate: (i: number) => ({
       scale: [1, 1.2, 1, 1],
       rotate: [0, 90, 90, 0],
@@ -19,7 +19,7 @@ export default function Loader({ label = "Loading sanctuary", fullscreen = true 
         duration: 2,
         repeat: Infinity,
         delay: i * 0.3,
-        ease: [0.25, 1, 0.5, 1],
+        ease: [0.25, 1, 0.5, 1] as const,
       },
     }),
   };

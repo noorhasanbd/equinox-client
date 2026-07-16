@@ -27,7 +27,7 @@ export default function OwnerSecurityLayout({ children }: OwnerLayoutProps) {
   if (isPending) {
     return (
       <div className="flex h-[40vh] w-full flex-col items-center justify-center gap-3">
-        <Spinner label="Verifying merchant clearance..." color="warning" size="lg" />
+        <Spinner color="danger" size="lg" />
       </div>
     );
   }

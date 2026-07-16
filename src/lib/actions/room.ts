@@ -51,7 +51,7 @@ export async function getRooms() {
       method: "GET",
     });
   } catch (err: any) {
-    return { success: false, error: err.message };
+    return { success: false as const, error: err.message };
   }
 }
 
@@ -70,7 +70,7 @@ export async function createRoom(data: RoomInput) {
       revalidatePathUrl: "/dashboard/rooms",
     });
   } catch (err: any) {
-    return { success: false, error: err.message };
+    return { success: false as const, error: err.message };
   }
 }
 
@@ -87,7 +87,7 @@ export async function getRoom(id: string) {
       method: "GET",
     });
   } catch (err: any) {
-    return { success: false, error: err.message };
+    return { success: false as const, error: err.message };
   }
 }
 
@@ -106,7 +106,7 @@ export async function updateRoom(id: string, data: Partial<RoomInput>) {
       revalidatePathUrl: "/dashboard/rooms",
     });
   } catch (err: any) {
-    return { success: false, error: err.message };
+    return { success: false as const, error: err.message };
   }
 }
 
@@ -125,7 +125,7 @@ export async function deleteRoom(id: string) {
       revalidatePathUrl: "/dashboard/rooms",
     });
   } catch (err: any) {
-    return { success: false, error: err.message };
+    return { success: false as const, error: err.message };
   }
 }
 
@@ -140,7 +140,7 @@ export async function deleteRoom(id: string) {
  */
 export async function getPublicRoomsByHotel(hotelId: string) {
   if (!hotelId) {
-    return { success: false, error: "Missing required query parameter: hotelId." };
+    return { success: false as const, error: "Missing required query parameter: hotelId." };
   }
 
   return await serverMutate({
@@ -155,7 +155,7 @@ export async function getPublicRoomsByHotel(hotelId: string) {
  */
 export async function getPublicRoomDetails(id: string) {
   if (!id) {
-    return { success: false, error: "Missing required identifier parameter: id." };
+    return { success: false as const, error: "Missing required identifier parameter: id." };
   }
 
   return await serverMutate({
@@ -170,4 +170,3 @@ export async function getAllPublicRooms() {
     method: "GET",
   });
 }
-

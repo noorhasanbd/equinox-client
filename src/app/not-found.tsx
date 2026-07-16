@@ -74,22 +74,19 @@ export default function NotFound() {
           transition={{ duration: 0.6, delay: 0.35 }}
           className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 w-full"
         >
+          {/* 🟢 FIXED: Removed invalid radius prop, handling layout cleanly via rounded-full in class layer */}
           <Button
             onClick={() => window.history.back()}
-            variant="light"
-            radius="xl"
-            className="w-full sm:w-auto h-11 border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 font-semibold text-sm px-5 group flex items-center justify-center gap-2 transition-all hover:bg-neutral-100 dark:hover:bg-neutral-900 active:scale-98"
+            variant="outline"
+            className="w-full sm:w-auto h-11 border border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 font-semibold text-sm px-5 group flex items-center justify-center gap-2 transition-all hover:bg-neutral-100 dark:hover:bg-neutral-900 active:scale-98 rounded-full"
           >
             <FaArrowLeftLong className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" />
             Go Back
           </Button>
 
           <Link
-            
             href="/"
-            color="primary"
-           
-            className="w-full sm:w-auto h-11 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm px-6 transition-all group flex items-center justify-center gap-2 shadow-md shadow-indigo-600/10 active:scale-98 dark:bg-indigo-500 dark:hover:bg-indigo-400 rounded-4xl"
+            className="w-full sm:w-auto h-11 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm px-6 transition-all group flex items-center justify-center gap-2 shadow-md shadow-indigo-600/10 active:scale-98 dark:bg-indigo-500 dark:hover:bg-indigo-400 rounded-full"
           >
             Return Home
             <FaArrowRightLong className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1 " />

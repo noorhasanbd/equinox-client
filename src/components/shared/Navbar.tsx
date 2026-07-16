@@ -14,7 +14,8 @@ interface RouteItem {
 }
 
 export default function Navbar() {
-  const { data: session, isPending, refresh } = authClient.useSession();
+  // Swapped refresh for refetch to satisfy TypeScript
+  const { data: session, isPending, refetch } = authClient.useSession();
   const user = session?.user;
   const userRole = user?.role;
   const router = useRouter();
@@ -32,12 +33,12 @@ export default function Navbar() {
     setMounted(true);
   }, []);
 
-  // Sync session state on mount
+  // Sync session state on mount using the correct refetch method
   useEffect(() => {
-    if (typeof refresh === "function") {
-      refresh();
+    if (typeof refetch === "function") {
+      refetch();
     }
-  }, [refresh]);
+  }, [refetch]);
 
   // Handle outside clicks for desktop profile dropdown
   useEffect(() => {
@@ -69,19 +70,19 @@ export default function Navbar() {
 
   let dashboardHref: string;
 
-switch (userRole) {
-  case "admin":
-    dashboardHref = "/dashboard/admin";
-    break;
-  case "owner":
-    dashboardHref = "/dashboard/owner";
-    break;
-  case "guest":
-    dashboardHref = "/dashboard/guest";
-    break;
-  default:
-    dashboardHref = "/dashboard/guest"; // Safe fallback route
-}
+  switch (userRole) {
+    case "admin":
+      dashboardHref = "/dashboard/admin";
+      break;
+    case "owner":
+      dashboardHref = "/dashboard/owner";
+      break;
+    case "guest":
+      dashboardHref = "/dashboard/guest";
+      break;
+    default:
+      dashboardHref = "/dashboard/guest"; // Safe fallback route
+  }
 
   const profileHref = "/dashboard/my-profile";
 

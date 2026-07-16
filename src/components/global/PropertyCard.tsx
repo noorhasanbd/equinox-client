@@ -3,10 +3,20 @@
 import { motion } from "framer-motion";
 import { MapPin, Star, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import { Stay } from "@/types";
+
 
 interface PropertyCardProps {
   stay: Stay;
+}
+export interface Stay {
+  id: string;
+  title: string;
+  category: string;
+  location: string;
+  price: number;
+  rating: number;
+  imageUrl: string;
+  shortDescription: string;
 }
 
 export default function PropertyCard({ stay }: PropertyCardProps) {

@@ -217,7 +217,7 @@ console.log(hotels);
       {/* PROPERTY VIEW GRID */}
       {loading ? (
         <div className="flex h-[300px] items-center justify-center">
-          <Spinner label="Loading your properties..." />
+          <Spinner color="accent" size="lg" />
         </div>
       ) : hotels.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-8 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-white/50 dark:bg-slate-900/10">

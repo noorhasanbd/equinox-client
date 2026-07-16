@@ -27,7 +27,10 @@ export default function AdminSecurityLayout({ children }: AdminLayoutProps) {
   if (isPending) {
     return (
       <div className="flex h-[40vh] w-full flex-col items-center justify-center gap-3">
-        <Spinner label="Verifying security clearance level..." color="danger" size="lg" />
+        <Spinner color="danger" size="lg" />
+        <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+          Verifying security clearance level...
+        </span>
       </div>
     );
   }

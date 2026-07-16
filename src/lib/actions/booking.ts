@@ -27,7 +27,7 @@ export async function createBooking(data: Omit<BookingPayload, "userId">) {
     });
 
     if (!session || !session.user) {
-      return { success: false, error: "Unauthorized. You must be logged in to book." };
+      return { success: false as const, error: "Unauthorized. You must be logged in to book." };
     }
 
     // Standardize incoming status context and attach the secure userId from session
@@ -52,7 +52,7 @@ export async function createBooking(data: Omit<BookingPayload, "userId">) {
     return res;
   } catch (error: any) {
     console.error("Failed to create booking through API:", error);
-    return { success: false, error: error.message || "Failed to create booking." };
+    return { success: false as const, error: error.message || "Failed to create booking." };
   }
 }
 
@@ -66,7 +66,7 @@ export async function getBookingsByUserId(roomId?: string) {
   });
 
   if (!session || !session.user) {
-    return { success: false, error: "Unauthorized." };
+    return { success: false as const, error: "Unauthorized." };
   }
 
   // Construct RESTful path: /api/bookings/user/USER_ID
@@ -95,7 +95,7 @@ export async function updateBooking(
     });
 
     if (!session || !session.user) {
-      return { success: false, error: "Unauthorized." };
+      return { success: false as const, error: "Unauthorized." };
     }
 
     // If a status update is submitted, normalize it to match your database schema enum
@@ -116,7 +116,7 @@ export async function updateBooking(
     return res;
   } catch (error: any) {
     console.error("Failed to update booking via API:", error);
-    return { success: false, error: error.message || "Failed to modify booking." };
+    return { success: false as const, error: error.message || "Failed to modify booking." };
   }
 }
 
@@ -131,7 +131,7 @@ export async function deleteBooking(bookingId: string) {
     });
 
     if (!session || !session.user) {
-      return { success: false, error: "Unauthorized." };
+      return { success: false as const, error: "Unauthorized." };
     }
 
     // Note: Ensure your backend API handles checking ownership before deleting!
@@ -144,6 +144,6 @@ export async function deleteBooking(bookingId: string) {
     return res;
   } catch (error: any) {
     console.error("Failed to delete booking via API:", error);
-    return { success: false, error: error.message || "Failed to remove booking." };
+    return { success: false as const, error: error.message || "Failed to remove booking." };
   }
 }

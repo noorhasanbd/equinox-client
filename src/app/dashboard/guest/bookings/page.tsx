@@ -111,7 +111,8 @@ export default function GuestBookingManagementPage() {
       {/* Loading state indicator */}
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <Spinner color="primary" label="Retrieving your reservation history..." />
+          <Spinner color="accent" />
+          <span className="text-xs text-default-500">Retrieving your reservation history...</span>
         </div>
       ) : !session ? (
         <Card className="border border-divider bg-content1 shadow-none p-12 text-center flex flex-col items-center gap-4">

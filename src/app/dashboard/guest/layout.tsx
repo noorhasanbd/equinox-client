@@ -27,7 +27,10 @@ export default function GuestSecurityLayout({ children }: GuestLayoutProps) {
   if (isPending) {
     return (
       <div className="flex h-[40vh] w-full flex-col items-center justify-center gap-3">
-        <Spinner label="Verifying traveler profile details..." color="primary" size="lg" />
+        <Spinner color="accent" size="lg" />
+        <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+          Verifying traveler profile details...
+        </span>
       </div>
     );
   }

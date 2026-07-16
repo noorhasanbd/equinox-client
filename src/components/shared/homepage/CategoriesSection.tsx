@@ -3,7 +3,16 @@
 import { Compass } from "lucide-react";
 import Link from "next/link";
 
-import { Stay } from "@/types";
+export interface Stay {
+  id: string;
+  title: string;
+  category: string;
+  location: string;
+  price: number;
+  rating: number;
+  imageUrl: string;
+  shortDescription: string;
+}
 import PropertyCard from "@/components/global/PropertyCard";
 
 // Dynamic mock properties matching the 'Stay' interface props perfectly
