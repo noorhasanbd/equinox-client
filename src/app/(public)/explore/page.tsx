@@ -37,7 +37,7 @@ export default function ExplorePage() {
   const [filters, setFilters] = useState<FilterState>(initialFilterState);
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
 
-  // 1. Data Fetch Sync
+  // 1. Data Fetch Sync with debug logging
   useEffect(() => {
     async function loadExploreData() {
       try {
@@ -49,6 +49,11 @@ export default function ExplorePage() {
           getHotels(),
         ]);
 
+        // --- DEBUG LOGGER FOR SERVER RESPONSES ---
+        console.log("=== EXPLORE DATA FETCH MATRIX ===");
+        console.log("Rooms Server Action Payload:", roomsRes);
+        console.log("Hotels Server Action Payload:", hotelsRes);
+
         if (!roomsRes.success)
           throw new Error(roomsRes.error || "Failed loading inventory.");
         if (!hotelsRes.success)
@@ -57,6 +62,7 @@ export default function ExplorePage() {
         setRawRooms(roomsRes.data || []);
         setHotels(hotelsRes.data || []);
       } catch (err: any) {
+        console.error("CRITICAL EXPLORE FETCH CATCHED ERROR:", err);
         setError(err.message || "An error occurred while loading content.");
       } finally {
         setLoading(false);
@@ -78,6 +84,11 @@ export default function ExplorePage() {
   const filteredListings = useMemo<any[]>(() => {
     const hotelMap = new Map(hotels.map((h) => [h._id, h]));
 
+    // --- DEBUG LOGGER FOR COMPONENT INVENTORY STATE ---
+    console.log("=== MEMO PIPELINE CHECK ===");
+    console.log("Raw Rooms In State Array:", rawRooms);
+    console.log("Hotels In State Map Structure:", hotels);
+
     return rawRooms
       .filter((room) => {
         const parentHotel = hotelMap.get(room.hotelId);
@@ -89,14 +100,18 @@ export default function ExplorePage() {
         )
           return false;
 
-        // B. Top Category Pills Filter
-        if (activeTab !== "all-stays" && room.type !== activeTab) return false;
+        // B. Top Category Pills Filter (Fallback Lowercase check)
+        if (
+          activeTab !== "all-stays" && 
+          room.type?.toLowerCase() !== activeTab.toLowerCase()
+        ) 
+          return false;
 
         // C. Input Search Fields Evaluation
         const matchesSearch =
-          room.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (room.type || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
           (parentHotel &&
-            parentHotel.name.toLowerCase().includes(searchQuery.toLowerCase()));
+            (parentHotel.name || "").toLowerCase().includes(searchQuery.toLowerCase()));
         if (!matchesSearch) return false;
 
         // D. Sidebar: Booking Type Toggle Evaluation
@@ -169,7 +184,7 @@ export default function ExplorePage() {
               (r) =>
                 (selectedHotelId === "all-hotels" ||
                   r.hotelId === selectedHotelId) &&
-                r.type === cat.id,
+                (r.type || "").toLowerCase() === cat.id.toLowerCase(),
             ).length,
     }));
   }, [rawRooms, selectedHotelId]);
@@ -238,7 +253,6 @@ export default function ExplorePage() {
             Filter By Property Location
           </h2>
           <div className="flex flex-wrap items-center gap-2">
-            {/* All Hotels Option */}
             <button
               onClick={() => {
                 setSelectedHotelId("all-hotels");
@@ -262,7 +276,6 @@ export default function ExplorePage() {
               </span>
             </button>
 
-            {/* Dynamic Hotel Options */}
             {hotels.map((hotel) => {
               const roomsCount = rawRooms.filter(
                 (r) => r.hotelId === hotel._id,
@@ -300,7 +313,6 @@ export default function ExplorePage() {
 
         {/* Layout Framework Grid */}
         <section className="flex flex-col lg:flex-row gap-8 items-start">
-          {/* Sidebar Area Wrapper */}
           <div className="w-full lg:w-64 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-5 shadow-sm text-neutral-800 dark:text-neutral-200">
             <FilterSidebar
               filters={filters}
@@ -309,7 +321,6 @@ export default function ExplorePage() {
             />
           </div>
 
-          {/* Accommodation Display Grid Panel */}
           <div className="flex-grow w-full space-y-6">
             <div className="relative w-full flex items-center">
               <HiOutlineSearch className="absolute left-4 text-neutral-400 dark:text-neutral-500 h-4 w-4" />

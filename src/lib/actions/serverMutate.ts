@@ -4,7 +4,7 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
-const EXPRESS_API_URL = process.env.NEXT_PUBLIC_SERVER_URL;
+const EXPRESS_API_URL = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000"; // Default to localhost if not set
 
 interface MutateOptions {
   path: string;                // e.g. "/api/hotels" or "/api/hotels/123"
