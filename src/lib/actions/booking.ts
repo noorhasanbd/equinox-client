@@ -30,13 +30,13 @@ export async function createBooking(data: Omit<BookingPayload, "userId">) {
       return { success: false as const, error: "Unauthorized. You must be logged in to book." };
     }
 
-    // Standardize incoming status context and attach the secure userId from session
+    // ✅ FIXED: Enforce lowercase to match your Mongoose schema enum criteria ["pending", "confirmed", "cancelled"]
     const formattedData = {
       ...data,
       userId: session.user.id, // Injecting user ID safely here
       status: data.status 
-        ? data.status.charAt(0).toUpperCase() + data.status.slice(1).toLowerCase() 
-        : "Confirmed"
+        ? data.status.toLowerCase() 
+        : "confirmed"
     };
 
     const res = await serverMutate({
@@ -98,11 +98,10 @@ export async function updateBooking(
       return { success: false as const, error: "Unauthorized." };
     }
 
-    // If a status update is submitted, normalize it to match your database schema enum
+    // ✅ FIXED: Ensure status updates are uniformly forced to all lowercase matching the DB requirements
     const formattedUpdate = { ...updateData };
     if (formattedUpdate.status) {
-      formattedUpdate.status = 
-        formattedUpdate.status.charAt(0).toUpperCase() + formattedUpdate.status.slice(1).toLowerCase();
+      formattedUpdate.status = formattedUpdate.status.toLowerCase();
     }
 
     // Note: The backend API endpoint should verify if this bookingId actually belongs to session.user.id!
@@ -146,4 +145,13 @@ export async function deleteBooking(bookingId: string) {
     console.error("Failed to delete booking via API:", error);
     return { success: false as const, error: error.message || "Failed to remove booking." };
   }
+}
+
+/**
+ * 5. CANCEL BOOKING SPECIFIC WRAPPER
+ * Internally utilizes the PUT endpoint to safely transform status contexts.
+ */
+export async function cancelBookingById(bookingId: string) {
+  // Pipes directly into updateBooking, which safely formats it into "cancelled" lowercase
+  return updateBooking(bookingId, { status: "cancelled" });
 }
