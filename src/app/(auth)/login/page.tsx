@@ -54,7 +54,7 @@ export default function LoginPage() {
           setIsLoading(false);
           
           // 🧠 Extract the freshly logged-in user's role from context contextually
-          const userRole = ctx.data?.user?.role;
+          const userRole = (ctx.data?.user as { role?: string } | undefined)?.role;
           const destination = getRedirectDestination(userRole);
           
           router.push(destination);
@@ -74,7 +74,11 @@ export default function LoginPage() {
     
     // For OAuth, pass a static fallback route; your server callback code 
     // can intercept the landing role mapping safely later.
-    const baselineDestination = getRedirectDestination(session?.user?.role);
+    // `role` is a custom field on the user model that the authClient's
+    // TypeScript types don't know about yet (see note below on inferAdditionalFields) —
+    // this cast unblocks the build without giving up runtime correctness.
+    const userRole = (session?.user as { role?: string } | undefined)?.role;
+    const baselineDestination = getRedirectDestination(userRole);
 
     await authClient.signIn.social({
       provider: "google",
