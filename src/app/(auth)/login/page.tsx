@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Checkbox, Label, Spinner } from "@heroui/react";
 import { motion } from "framer-motion";
-import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa6";
+import { FaGoogle, FaEye, FaEyeSlash, FaUser, FaUserShield } from "react-icons/fa6";
 import { HiOutlineBuildingOffice } from "react-icons/hi2";
 import { authClient } from "@/lib/auth-client"; 
 
@@ -26,6 +26,17 @@ export default function LoginPage() {
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
+  // ⚡ Helper function to autofill credentials
+  const handleQuickFill = (role: "owner" | "guest") => {
+    if (role === "owner") {
+      setEmail("noor.hasan321@gmail.com");
+      setPassword("PHero@1234");
+    } else {
+      setEmail("noor.hasan9786@gmail.com");
+      setPassword("PHero@1234");
+    }
+  };
+
   // 🛠️ Helper utility to calculate the target route based on user roles dynamically
   const getRedirectDestination = (userRole?: string | null) => {
     const callbackUrl = searchParams.get("callbackUrl");
@@ -45,15 +56,13 @@ export default function LoginPage() {
     await authClient.signIn.email({
       email: email,
       password: password,
-      rememberMe: rememberMe, // Pass the boolean state directly (or just shorthand: rememberMe)
+      rememberMe: rememberMe,
       fetchOptions: {
         onRequest: () => {
           setIsLoading(true);
         },
         onSuccess: (ctx) => {
           setIsLoading(false);
-          
-          // 🧠 Extract the freshly logged-in user's role from context contextually
           const userRole = ctx.data?.user?.role;
           const destination = getRedirectDestination(userRole);
           
@@ -71,10 +80,6 @@ export default function LoginPage() {
   // Google OAuth Login implementation
   const handleGoogleLogin = async () => {
     setErrorMessage(null);
-    
-    // For OAuth, pass a static fallback route; your server callback code 
-    // can intercept the landing role mapping safely later.
-    // `role` is now properly typed via the inferAdditionalFields client plugin.
     const baselineDestination = getRedirectDestination(session?.user?.role);
 
     await authClient.signIn.social({
@@ -132,7 +137,7 @@ export default function LoginPage() {
 
         {/* RIGHT COLUMN: CREDENTIAL INPUT LAYOUT */}
         <section className="col-span-1 md:col-span-7 lg:col-span-6 flex flex-col justify-center p-8 sm:p-12 lg:p-16 bg-white/75 dark:bg-neutral-900/85 backdrop-blur-2xl">
-          <div className="w-full space-y-7">
+          <div className="w-full space-y-5">
             
             <div>
               <Link href="/" className="md:hidden inline-flex items-center gap-2 mb-4 text-neutral-900 dark:text-neutral-100 font-extrabold tracking-tight text-base">
@@ -152,6 +157,33 @@ export default function LoginPage() {
                 {errorMessage}
               </div>
             )}
+
+            {/* ⚡ NEW: QUICK FILL SHORTCUT BUTTONS */}
+            <div className="space-y-1.5">
+              <span className="text-[9px] font-black uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
+                Quick Testing Coordinates
+              </span>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onPress={() => handleQuickFill("owner")}
+                  className="h-9 rounded-xl border-indigo-200 dark:border-indigo-900/40 bg-indigo-50/30 dark:bg-indigo-950/20 text-indigo-700 dark:text-indigo-400 font-bold text-[11px] hover:bg-indigo-50 dark:hover:bg-indigo-950/40 active:scale-98 transition-all flex items-center justify-center gap-1.5"
+                >
+                  <FaUserShield className="text-[11px]" />
+                  As Owner
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onPress={() => handleQuickFill("guest")}
+                  className="h-9 rounded-xl border-emerald-200 dark:border-emerald-900/40 bg-emerald-50/30 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 font-bold text-[11px] hover:bg-emerald-50 dark:hover:bg-emerald-950/40 active:scale-98 transition-all flex items-center justify-center gap-1.5"
+                >
+                  <FaUser className="text-[11px]" />
+                  As Guest
+                </Button>
+              </div>
+            </div>
 
             <Button
               variant="outline"
